@@ -8,6 +8,7 @@ Programs are executed as a runnable **JAR** using `java -jar` (cross-platform: W
 ## Requirements
 
 - **Java (JDK) 17+** installed and available in your `PATH`.
+- Not Java 27 supported!. Preferred to use Java 21.
 
 Verify:
 
@@ -32,7 +33,7 @@ gradlew.bat shadowJar
 This generates the runnable JAR at:
 
 ```bash
-build/libs/dsa.jar
+build/libs/isis4208.jar
 ```
 
 Run
@@ -40,13 +41,13 @@ Run
 General usage:
 
 ```bash
-java -jar build/libs/dsa.jar <assignment> <problem> <input_path> [output_path]
+java -jar build/libs/isis4208.jar <assignment> <problem> <input_path> [output_path]
 ```
 
 Example (Tarea_x, Problema y), from root folder:
 
 ```bash
-java -jar build/libs/dsa.jar Tarea_x y inputs/p1.json
+java -jar build/libs/isis4208.jar Tarea_x y inputs/p1.json
 ```
 
 Some problems are returning a complex data as result. Those allow you to optionally add an output path.
@@ -54,7 +55,7 @@ By default, this will be saved under /outputs folder.
 
 ## Problems and algorithms inventory:
 Here you will find solutions for:
--  Assignment 1 (Tarea_1)
+* Assignment 1 (Tarea_1)
   - Problem 1 (1)
   - Problem 5 (5)
 
