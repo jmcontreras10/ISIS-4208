@@ -53,11 +53,38 @@ java -jar build/libs/isis4208.jar Tarea_x y inputs/p1.json
 Some problems are returning a complex data as result. Those allow you to optionally add an output path.
 By default, this will be saved under /outputs folder.
 
-## Problems and algorithms inventory:
+# Problems and algorithms inventory:
 Here you will find solutions for:
-* Assignment 1 (Tarea_1)
-  - Problem 1 (1)
-  - Problem 5 (5)
+* ## Assignment 1 (Tarea_1)
+  - ### Problem 1 (1)
+    * Input:
+    `Input path for .json file`
+    ```json
+      {
+        "users": [
+          { "id": x1, "friends": [y1,y2,...] },
+          ...
+        ]
+      }
+    ```
+      * Output:
+    `Standart output boolean: if for the given data, the six degree theory fulfils.`
+  - ### Problem 5 (5)
+      * Input:
+      `Input path for .csv file`
+      `Optional: output path`
+    ```csv
+    from,to,cost
+    x1,x2,x3
+    y1,y2,y3
+    ```
+      *   Output:
+      `.csv file and standart output metadata: upgrades, total cost, output path`
+    ```csv
+    from,to,cost
+    x1,x2,x3
+    y1,y2,y3
+    ```
 
 ## Generative AI Disclaimer
 
