@@ -52,6 +52,12 @@ java -jar build/libs/dsa.jar Tarea_x y inputs/p1.json
 Some problems are returning a complex data as result. Those allow you to optionally add an output path.
 By default, this will be saved under /outputs folder.
 
+## Problems and algorithms inventory:
+Here you will find solutions for:
+-  Assignment 1 (Tarea_1)
+  - Problem 1 (1)
+  - Problem 5 (5)
+
 ## Generative AI Disclaimer
 
 Generative AI was used under my supervision and correction only for the following cases in this project:
