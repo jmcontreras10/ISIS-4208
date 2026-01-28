@@ -40,7 +40,7 @@ Run
 General usage:
 
 ```bash
-java -jar build/libs/dsa.jar <assignment> <problem> <input_path>
+java -jar build/libs/dsa.jar <assignment> <problem> <input_path> [output_path]
 ```
 
 Example (Tarea_x, Problema y), from root folder:
@@ -48,3 +48,12 @@ Example (Tarea_x, Problema y), from root folder:
 ```bash
 java -jar build/libs/dsa.jar Tarea_x y inputs/p1.json
 ```
+
+Some problems are returning a complex data as result. Those allow you to optionally add an output path.
+By default, this will be saved under /outputs folder.
+
+## Generative AI Disclaimer
+
+Generative AI was used under my supervision and correction only for the following cases in this project:
+1. CLI, input reader and output writer generation
+2. Unit tests and data generation for the default test cases in 'inputs' folder

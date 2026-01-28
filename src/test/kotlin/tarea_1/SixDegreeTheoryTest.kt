@@ -1,5 +1,6 @@
 package tarea_1
 
+import isis4208.tarea_1.sixDegreeTheory
 import org.junit.jupiter.api.Test
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue

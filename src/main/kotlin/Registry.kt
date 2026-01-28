@@ -1,11 +1,12 @@
 package isis4208
 
-import tarea_1.Problem1SixDegreesSolver
+import isis4208.tarea_1.Problem5CheapestRoadUpgradesForTwoWayCityConnectivity
+import isis4208.tarea_1.Problem1SixDegreesSolver
 
 object Registry {
     private val solvers: Map<Pair<String, String>, FileSolver> = mapOf(
         ("Tarea_1" to "1") to Problem1SixDegreesSolver(),
-        //("Tarea_1" to "5") to
+        ("Tarea_1" to "5") to Problem5CheapestRoadUpgradesForTwoWayCityConnectivity()
     )
 
     fun get(assignment: String, problem: String): FileSolver? =

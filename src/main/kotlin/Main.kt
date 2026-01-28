@@ -5,7 +5,7 @@ import java.io.File
 object Main {
     @JvmStatic
     fun main(args: Array<String>) {
-        if (args.size != 3 || args[0] in setOf("-h", "--help")) {
+        if (args.size < 3 || args.size > 4 || args[0] in setOf("-h", "--help")) {
             printUsage()
             return
         }
@@ -13,6 +13,7 @@ object Main {
         val assignment = args[0]
         val problem = args[1]
         val inputPath = args[2]
+        val outputPath = if (args.size == 4) args[3] else null
 
         val solver = Registry.get(assignment, problem)
         if (solver == null) {
@@ -29,7 +30,7 @@ object Main {
         }
 
         try {
-            val output = solver.solve(file)
+            val output = solver.solve(file, outputPath)
             print(output)
             if (!output.endsWith("\n")) println()
         } catch (e: Exception) {
@@ -38,7 +39,7 @@ object Main {
     }
 
     private fun printUsage() {
-        System.err.println("Usage: java -jar isis4208.jar <assignment> <problem> <input_path>")
+        System.err.println("Usage: java -jar isis4208.jar <assignment> <problem> <input_path> [output_path]")
         System.err.println("  <assignment> e.g. Tarea_1, Tarea_2, ...")
         System.err.println("  <problem>    e.g. 1,2,3,4,5")
         System.err.println("Example:")

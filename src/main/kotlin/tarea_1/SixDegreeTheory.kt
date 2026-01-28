@@ -1,4 +1,4 @@
-package tarea_1
+package isis4208.tarea_1
 
 import isis4208.FileSolver
 import java.util.LinkedList
@@ -8,7 +8,7 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 
 // =================================================================
-//                          Algorithm
+//                        Algorithm: n BFS
 // =================================================================
 
 /**
@@ -62,14 +62,14 @@ fun sixDegreeTheory (users: Array<IntArray>): Boolean {
 
 // =================================================================
 //                       Parse Functions
-//  =================================================================
+// =================================================================
 
 /**
  * Useful function to parse User data to simplified version of a graph.
  * From list of User objects to simply array of numbers array.
  * Mapping user id to its index in the array.
  */
-    fun parseGraph(data: List<User>): Array<IntArray> {
+fun parseGraph(data: List<User>): Array<IntArray> {
     val idToIndex: Map<Int, Int> = data
         .withIndex()
         .associate { it.value.id to it.index }
@@ -126,7 +126,7 @@ class Problem1SixDegreesSolver : FileSolver {
         return payload.users
     }
 
-    override fun solve(inputFile: File): String {
+    override fun solve(inputFile: File, outputPath: String?): String {
         val users = readUsersFromJsonFile(inputFile)
         val ok = sixDegreeTheory(parseGraph(users))
         return if (ok) "true" else "false"
