@@ -2,11 +2,15 @@ package isis4208
 
 import isis4208.tarea_1.Problem5CheapestRoadUpgradesForTwoWayCityConnectivity
 import isis4208.tarea_1.Problem1SixDegreesSolver
+import isis4208.tarea_2.EdmondsKarpSolver
+import isis4208.tarea_2.PushRelabelFrontSolver
 
 object Registry {
     private val solvers: Map<Pair<String, String>, FileSolver> = mapOf(
         ("Tarea_1" to "1") to Problem1SixDegreesSolver(),
-        ("Tarea_1" to "5") to Problem5CheapestRoadUpgradesForTwoWayCityConnectivity()
+        ("Tarea_1" to "5") to Problem5CheapestRoadUpgradesForTwoWayCityConnectivity(),
+        ("Tarea_2" to "1") to EdmondsKarpSolver(),
+        ("Tarea_2" to "2") to PushRelabelFrontSolver()
     )
 
     fun get(assignment: String, problem: String): FileSolver? =

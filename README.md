@@ -85,6 +85,27 @@ Here you will find solutions for:
     x1,x2,x3
     y1,y2,y3
     ```
+* ## Assignment 2 (Tarea_2)
+  - ### Edmonds-Karp (1)
+    * Input:
+      `Input path for .txt file`
+    ```txt
+      N
+      u1 v1 c_u1_v1
+      u1 v2 c_u1_v1
+    ```
+    * Output:
+      `.txt with: execution time, max flow, and flow`
+  - ### Push-Relabel to Front (2)
+    * Input:
+      `Input path for .txt file`
+    ```txt
+      N
+      u1 v1 c_u1_v1
+      u1 v2 c_u1_v2
+    ```
+    * Output:
+      `.txt with: execution time, max flow, and flow`
 
 ## Generative AI Disclaimer
 
