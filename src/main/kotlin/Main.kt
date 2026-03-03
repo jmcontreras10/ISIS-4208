@@ -40,8 +40,8 @@ object Main {
 
     private fun printUsage() {
         System.err.println("Usage: java -jar isis4208.jar <assignment> <problem> <input_path> [output_path]")
-        System.err.println("  <assignment> e.g. Tarea_1, Tarea_2, ...")
-        System.err.println("  <problem>    e.g. 1,2,3,4,5")
+        System.err.println("  <assignment> e.g. Tarea_1, Tarea_2, Tarea_4, ...")
+        System.err.println("  <problem>    e.g. 1,2,3, ...")
         System.err.println("Example:")
         System.err.println("  java -jar dsa.jar Tarea_1 1 inputs/p1.json")
     }

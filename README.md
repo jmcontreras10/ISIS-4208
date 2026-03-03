@@ -107,6 +107,26 @@ Here you will find solutions for:
     * Output:
       `.txt with: execution time, max flow, and flow`
 
+* ## Assignment 3: not present since was a Mathematical demonstration on graphs planarity
+
+* ## Assignment 4 (Tarea_4)
+  - ### Shannon-Fano Compressor based (1)
+    * Input:
+      `Input path for any text extension file (.txt, .csv, .html...)`
+    ```txt
+      KEBAB AB BAK
+    ```
+    * Output:
+      `.matt file: my custom compression file extension for compression`
+  - ### .matt decompressor (3)
+    * Input:
+      `.matt file path to decompress. This file should have been compressed using previous algorithms on this assignament.`
+    * Output:
+      `Since the compression algorithms in this assignament saves the extension, the result file will have the original extension`
+    ```txt
+      KEBAB AB BAK
+    ```
+  
 ## Generative AI Disclaimer
 
 Generative AI was used under my supervision and correction only for the following cases in this project:
