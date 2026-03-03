@@ -43,6 +43,7 @@ General usage:
 ```bash
 java -jar build/libs/isis4208.jar <assignment> <problem> <input_path> [output_path]
 ```
+**Note:** For "Tarea_4" no output path is required. a `.matt` / `_decompressed.<original_ext>` file will be created in the same folder of the input file
 
 Example (Tarea_x, Problema y), from root folder:
 
