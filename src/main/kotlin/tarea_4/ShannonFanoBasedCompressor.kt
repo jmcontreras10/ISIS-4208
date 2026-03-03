@@ -5,25 +5,19 @@ import java.io.File
 import kotlin.math.*
 
 // =================================================================
-//          Algorithm: Shannon-Fano code base compressor
+//          Algorithm: Shannon-Fano code getter
 // =================================================================
 /**
  * Actual algorithm
- * In: String               -> Represents the message to compress
- * Out: String              -> Represents the compressed message
+ * In: String                       -> Represents the message to compress
+ * Out: MutableMap<Char, Code>      -> A map of char to its bits representation
  *
  * Explanation:
  * To compress any given text, this algorithm just calculates the alphabet Ψ from the given message.
- * Then in a first loop it calculates the probability distribution per each μ in Ψ.
- * Using the getShannonFanoCodeDictionary function, it calculates the bit level code per each μ in Ψ and return the
- * new bit representation.
- * Finally, going over the message a second time, we use a sliding window technique to encode the previous
- * original message using the new bit alphabet.
+ * Then in a first loop it calculates the probability distribution per each μ in Ψ (frequencies).
+ * Using the frequencies it calculates the bits required to store each char and the bits representation
+ * as UInt with length of actual bits
  */
-fun shannonFanoEncoder(message: String): String {
-    return ""
-}
-
 fun getShannonFanoCodeDictionary(message: String): MutableMap<Char, Code> {
     //  Getting frequencies
     val frequencies = getFrequencies(message)
