@@ -111,17 +111,25 @@ Here you will find solutions for:
 * ## Assignment 3: not present since was a Mathematical demonstration on graphs planarity
 
 * ## Assignment 4 (Tarea_4)
-  - ### Shannon-Fano Compressor based (1)
+  - ### Shannon-Fano codes Compressor based (1)
     * Input:
       `Input path for any text extension file (.txt, .csv, .html...)`
     ```txt
       KEBAB AB BAK
     ```
     * Output:
-      `.matt file: my custom compression file extension for compression`
-  - ### .matt decompressor (3)
+      `.sf or .hf files: custom file extensions for compression`
+  - ### Huffman codes Compressor based (2)
     * Input:
-      `.matt file path to decompress. This file should have been compressed using previous algorithms on this assignament.`
+      `Input path for any text extension file (.txt, .csv, .html...)`
+    ```txt
+      KEBAB AB BAK
+    ```
+    * Output:
+      `.sf or .hf files: custom file extensions for compression`
+  - ### .sf or .hf decompressor (3)
+    * Input:
+      `.sf or .hf file path to decompress. This file should have been compressed using previous algorithms on this assignament.`
     * Output:
       `Since the compression algorithms in this assignament saves the extension, the result file will have the original extension`
     ```txt

@@ -6,40 +6,71 @@ import java.io.BufferedOutputStream
 import java.io.DataInputStream
 import java.io.DataOutputStream
 import java.io.File
+import kotlin.math.log2
+
+// =================================================================
+//          General Entropy Codes generation Utilities
+// =================================================================
 
 /**
- * This function retrieves the frequencies for each character in a String message.
+ * This function process receives a String message as input, calculates each character frequency in the message
+ * and returns a map of Char to probability.
  */
-fun getFrequencies(message: String): MutableMap<Char, Double> {
-    val frequencies = mutableMapOf<Char, Double>()
+fun getProbabilities(message: String): Map<Char, Double> {
+    val probabilities = mutableMapOf<Char, Double>()
     val N = message.length
 
-    //  Let's calculate the total
-    for (c in message) frequencies[c] = frequencies.getOrDefault(c, 0.0) + 1.0
-    for (c in frequencies.keys) frequencies[c] = frequencies[c]!!/N
-    return frequencies
+    //  Let's calculate the total frequencies
+    for (c in message) probabilities[c] = probabilities.getOrDefault(c, 0.0) + 1.0
+    //  Let's calculate each probability
+    for (c in probabilities.keys) probabilities[c] = probabilities[c]!!/N
+    return probabilities
 }
 
+// =================================================================
+//                      Data Classes
+// =================================================================
+
 /**
- * ByteArray with all the bits of the message (compressed) + length of actual useful bits
+ * This is a useful structure to pack all the bytes required to be written into a file.
+ * Is composed of a ByteArray representing the bytes to be written and the length of actual compressed bits.
  */
 data class Payload(val bytes: ByteArray, val bitLen: Int)
 
 /**
- * This class initializes with a ByteArray which represents a compressed encoded file
- * and has a single function for:
- * readBit: given the current pointer to bit (byte, bit) returns the bit in that position
- * by masking the required bit and move next
+ * Compressors name enum
+ */
+enum class CompressorName(val compressorName: String) {
+    SHANNON_FANO("Shannon-Fano"),
+    HUFFMAN("Huffman")
+}
+
+/**
+ * Compressors extension enum
+ */
+enum class CompressorExt(val compressorExt: String) {
+    SHANNON_FANO("sf"),
+    HUFFMAN("hf")
+}
+
+// =================================================================
+//                  Bit level utilities
+// =================================================================
+/**
+ * This class is a utility for reading all bits from a byteArray. It initializes with a ByteArray which represents
+ * a compressed encoded file bits and has a single function for:
+ * readBit: given the current pointer to a bit (byteIndex, bitPos) returns the bit in that
+ * position of the compressed message by masking the required bit. Finally, iterates to the next bit.
  */
 class BitReader(private val bytes: ByteArray) {
     private var byteIndex = 0
     private var bitPos = 0
 
     fun readBit(): Int {
-        val b = bytes[byteIndex].toInt() and 0xFF   // 11111111
-        val bit = (b shr (7 - bitPos)) and 1        //00000001
-        bitPos++
-        if (bitPos == 8) {
+        val byte = bytes[byteIndex].toInt() and 0xFF    //  Getting only the last 8 bits since Int has 32 (no sign)
+        val bit = (byte shr (7 - bitPos)) and 1         //  Masking with 0... 00000001 to get last bit (bitPos)
+        bitPos++                                        //  Iterator.next()
+        if (bitPos == 8) {                              //  In case bitPos reached the last bit of byte
             bitPos = 0
             byteIndex++
         }
@@ -48,10 +79,12 @@ class BitReader(private val bytes: ByteArray) {
 }
 
 /**
- * This class has a set of functions to:
- * 1. writeBit: write a single bit in the current byte
- * 2. flush: save current byte in the list and start writing in a new one (specially when a byte is full)
- * 3. writeCode: write all bits in a code into the current byte (by using writeBit)
+ * This class is a utility for writing a set of bits in a byteArray. It has a set of functions to:
+ * 1. writeBit: write a single bit in the current byte (buffer) at index position (currentByte, currentBitPos)
+ *            Then adds one more bit in the total bit count and triggers flush if byte is full.
+ * 2. flush: adds the current byte (buffer) to the byteArray once a byte was completely written or all codes
+ *           were totally written. Then reset the byte to keep writing.
+ * 3. writeCode: write all bits of a given code using many bytes (buffers) as required
  * 4. toPayload: transform the final byte array into payload object (byteArray, bits length)
  */
 class BitWriter {
@@ -61,7 +94,7 @@ class BitWriter {
     private var bitLen = 0
 
     private fun writeBit(bit: Int) {
-        currentByte = currentByte or (bit shl (7 - currentBitPos))
+        currentByte = currentByte or (bit shl (7 - currentBitPos))  //  moving the bit of interest to current bit index
         currentBitPos++
         bitLen++
         if (currentBitPos == 8) flush()
@@ -88,7 +121,8 @@ class BitWriter {
 
 
 /**
- * This function packs all the message codes (1s and 0s) into a compressed payload (ByteArray).
+ * This function uses the BitWriter to process each character in the message, transform it to
+ * the corresponding code and pack it into a ByteArray
  */
 fun packPayload(codes: Map<Char, Code>, message: String): Payload {
     val writer = BitWriter()
@@ -96,74 +130,81 @@ fun packPayload(codes: Map<Char, Code>, message: String): Payload {
     return writer.toPayload()
 }
 
+// =================================================================
+//                      I/O Utilities
+// =================================================================
+
 /**
- *  This function writes the dictionary and Payload bytes into a given file
+ * This utility retrieves the full path of a given file and returns it without extension.
  */
-fun writeCompressed(
-    inputFile: File,
-    codes: Map<Char, Code>,
-    message: String,
-    compressor: String,
-): String {
-    //  Saving original extension
-    val extension = inputFile.extension
-    //  Getting the input file name for creating the compressed one with .matt extension
-    var outPath = inputFile.absolutePath
-    outPath = if (extension.isNotEmpty()) {
-        outPath.substringBeforeLast("." + inputFile.extension)
+fun getFilePathWithoutExtension(file: File): String {
+    val extension = file.extension
+    var path = file.absolutePath
+    path = if (extension.isNotEmpty()) {
+        path.substringBeforeLast("." + file.extension)
     } else {
-        outPath
-    } + ".matt"
-    val outFile = File(outPath)
-
-    DataOutputStream(BufferedOutputStream(outFile.outputStream())).use { out ->
-        //  Saving extension
-        out.writeShort(extension.length)    //  Len of extension name
-        for (c in extension) {
-            out.writeShort(c.code)          //  Write each letter on extension
-        }
-
-        //  Dictionary
-        out.writeShort(codes.size)
-        for ((c, code) in codes.entries.sortedBy { it.key.code }) {
-            out.writeShort(c.code)
-            out.writeByte(code.bits)
-            out.writeInt(code.code.toInt())
-        }
-
-        //  Payload
-        val payload = packPayload(codes, message)
-        out.writeInt(payload.bitLen)
-        out.writeInt(payload.bytes.size)
-        out.write(payload.bytes)
-        out.flush()
+        path
     }
-
-    val compressionRatio = inputFile.length() * 1f / outFile.length()
-    println("File compressed successfully at: $outPath.")
-    println("Compression ratio: $compressionRatio")
-
-    val dict = StringBuilder("The $compressor codes for the input message are:\n")
-    dict.append("{\n")
-    for ((c, code) in codes.entries) dict.append("     $c -> ${code}, ${Integer.toBinaryString(code.code.toInt())}\n")
-    dict.append("}")
-    return dict.toString()
+    return path
 }
 
 /**
- * This function reads a compressed file for:
- * 1. The original file extension
- * 2. The dictionary to decompress the encoded message
- * 3. The bits (byte to byte) of the compressed message and decodes it into a readable message string
- *    by using the dictionary.
+ *  This handles already encoded message (as Payload: byteArray + length) writing, and returning it.
+ *  This utility receives the output file path to write in and data to write:
+ *  - its original extension name
+ *  - the encoding dictionary
+ *  - the payload (actual bits)
+ */
+fun writeCompressed(
+    outPath: String,
+    extensionName: String,
+    codesDict: Map<Char, Code>,
+    payload: Payload,
+    compressor: CompressorExt
+): File {
+    val outFile = File("$outPath.${compressor.compressorExt}")
+    outFile.parentFile?.mkdirs()    //  Safe in case dir does not exist
+
+    DataOutputStream(BufferedOutputStream(outFile.outputStream())).use { out ->
+        //  Extension
+        out.writeShort(extensionName.length)    //  Length of extension name
+        for (c in extensionName) {
+            out.writeShort(c.code)              //  Write each letter on extension
+        }
+
+        //  Dictionary
+        out.writeShort(codesDict.size)              //  Size of the dictionary
+        for ((c, code) in codesDict.entries.sortedBy { it.key.code }) {
+            out.writeShort(c.code)              //  Character
+            out.writeByte(code.bits)            //  Number of bits
+            out.writeInt(code.code.toInt())     //  bits
+        }
+
+        //  Payload
+        out.writeInt(payload.bitLen)            //  actual bits length
+        out.writeInt(payload.bytes.size)        //  number of bytes (for easy read)
+        out.write(payload.bytes)                //  actual bits
+        out.flush()
+    }
+    println("File compressed successfully at: $outPath.")
+    return outFile
+}
+
+/**
+ * This handles already encoded file reading, and returns the uncompressed message + its original extension.
+ * By receiving the input file only, this reads:
+ * - original extension
+ * - dictionary to decode
+ * - encoded message
+ * Then uses the dictionary as trie representation and decodes the message.
  */
 fun readCompressed(
     file: File,
 ): Pair<String, String> {
-    //  Since reading is bit to bit, a trie is a better solution than an actual dictionary
+    //  Since reading is bit to bit, a trie is a better solution than a Map
     val root = BinaryTrieNode()
 
-    //  This pushes a char down the trie following bits that forms it
+    //  Pre-processing function (Trie construction)
     fun insertCode(ch: Char, bits: Int, code: Int) {
         var node = root
         for (i in bits - 1 downTo 0) {
@@ -186,7 +227,7 @@ fun readCompressed(
         }
         val extension = extensionBuilder.toString()
 
-        //  Dictionary
+        //  Dictionary - pre-processing
         val dictSize = input.readUnsignedShort()
         for (i in 0 until dictSize) {
             val charCode = input.readUnsignedShort()
@@ -205,7 +246,8 @@ fun readCompressed(
         val text = StringBuilder()
         var node = root
 
-        //  Recursive decoding
+        //  Recursive decoding using the trie
+        //  No ending character needed since there are no repeated suffixes
         for(i in 0 until bitLen) {
             val bit = reader.readBit()
             node = if (bit == 0) node.zero ?: error("Invalid bitstream (no matching code)")
@@ -222,5 +264,64 @@ fun readCompressed(
     }
 }
 
+// =================================================================
+//                      Stats and result
+// =================================================================
+
+/**
+ *  This prints the final expected result after running a compression algorithm.
+ *  In:
+ *  - compressor: compressor name
+ *  - codesDict: to print the used dictionary
+ *  - probabilities: to calculate expected number of bits of the payload, the entropy in the worst case
+ *  - payloadLen: to print it as stat
+ *  - inputFile and outputFile: to calculate and print compression ratio
+ */
+fun getStats(
+    compressor: CompressorName,
+    codesDict: Map<Char, Code>,
+    probabilities: Map<Char, Double>,
+    payloadLen: Int,
+    inputFile: File,
+    outputFile: File
+): String {
+    //  ⚠️ This function was generated with generative AI
+    fun printableChar(c: Char): String = when (c) {
+        '\n' -> "\\n"
+        '\r' -> "\\r"
+        '\t' -> "\\t"
+        ' '  -> "' '"
+        else -> c.toString()
+    }
+
+    val ans = StringBuilder()
+    //  Dictionary
+    ans.append("The ${compressor.compressorName} codes for the input message are:\n")
+    ans.append("{\n")
+
+    for ((c, code) in codesDict.entries) {
+        val bits = Integer.toBinaryString(code.code.toInt()).padStart(code.bits, '0')
+        ans.append("     ${printableChar(c)} -> $code, $bits\n")
+    }
+    ans.append("}\n\n")
+
+    //  Stats
+    ans.append("#################### Stats for ${compressor.compressorName} codes calculation ####################\n\n")
+    val expectedBits = codesDict.entries.sumOf { (char, code) ->
+        code.bits * probabilities[char]!!
+    }
+    ans.append("Expected number of bits: (Σ μ ∈ Ψ |: Pr(μ)*(|B(μ)|)) = $expectedBits.\n")
+
+    val worstCaseEntropy = log2(codesDict.size * 1.0)
+    ans.append("Worst case entropy: log2(|Ψ|) = $worstCaseEntropy.\n")
+
+    ans.append("Actual number of bits of payload after compression = $payloadLen.\n")
+
+    val compressionRatio = inputFile.length() * 1f / outputFile.length()
+    ans.append("Compression ratio: $compressionRatio.\n\n")
+
+    ans.append("##################################################################################\n")
+    return ans.toString()
+}
 
 

@@ -1,44 +1,159 @@
 package isis4208.tarea_4
 
 import isis4208.FileSolver
-import isis4208.data_structures.BinaryTrieNode
+
 import java.io.File
+import java.util.*
 
 // =================================================================
 //          Algorithm: Huffman code base compressor
 // =================================================================
 /**
- * Actual algorithm
- * In: String                       -> Represents the message to compress
- * Out: MutableMap<Char, Code>      -> A map of char to its bits representation
+ * Builds the Huffman code dictionary for a given message.
+ *
+ * This function:
+ * 1. Constructs a Huffman tree using a min-heap (priority queue).
+ * 2. Traverses the tree to generate a prefix-free binary code for each character.
+ *
+ * The resulting dictionary maps each character to its corresponding
+ * Huffman [Code], which contains:
+ * - The number of bits used.
+ * - The binary representation of the code.
+ *
+ * @param probabilities The probability of each character to be found in the original message.
+ * @return A mutable map where each character is associated with its Huffman code.
+ *
  */
-fun getHuffmanCodeDictionary(message: String): MutableMap<Char, Code> {
-    //  Getting frequencies
-    val frequencies = getFrequencies(message)
-    //  Getting sorted chars by frequency
-    val charsQueue = frequencies
-        .toList()
-        .sortedBy { it.second }
-        .toMutableList()
-
-    //  Building the Trie
-    var root = BinaryTrieNode()
-
-    fun insertChar() {
-        if (root.one == null && root.zero == null) {
-            val (charA, probA) = charsQueue.removeFirst()
-            val (charB, probB) = charsQueue.removeFirst()
-            root.one = BinaryTrieNode(charA, probA)
-            root.one = BinaryTrieNode(charB, probB)
-        }
-        var node = root
-
+fun getHuffmanCodeDictionary(probabilities: Map<Char, Double>): MutableMap<Char, Code> {
+    //  Getting priority queue of chars by probability
+    val minHeap = PriorityQueue(
+        Comparator.comparing(Node::prob)
+    )
+    probabilities.forEach { (ch, pr) ->
+        minHeap.add(Node(ch, pr))
     }
-    return mutableMapOf()
+
+    // Build the Huffman tree
+    val n = probabilities.size
+    for (i in 0 until n - 1) {
+        val left = minHeap.poll()
+        val right = minHeap.poll()
+
+        val combinedFreq  =
+            (left?.prob ?: 0.0) + ((right?.prob ?: 0.0))
+
+        val parent = Node(combinedFreq, left, right)
+        minHeap.add(parent)
+    }
+
+    // Root of the Huffman tree
+    val root = checkNotNull(minHeap.poll())
+
+    // Traverse the tree to assemble the codes
+    val codes = mutableMapOf<Char, Code>()
+    getCodes(root, Code(0, 0U), codes)
+
+    return codes
 }
 
-class HuffmanBasedCompressor: FileSolver {
+/**
+ * Recursively traverses the Huffman tree to generate binary codes.
+ *
+ * Traversal rules:
+ * - Going to the left child appends a '0'.
+ * - Going to the right child appends a '1'.
+ *
+ * The function accumulates:
+ * - The current number of bits.
+ * - The current binary value (stored as an unsigned integer).
+ *
+ * When a leaf node (node.character != null) is reached,
+ * the accumulated code is stored in the dictionary.
+ *
+ * @param node Current node in the Huffman tree.
+ * @param code Accumulated code from the root to this node.
+ * @param codes Mutable map where final character codes are stored.
+ */
+fun getCodes(node: Node, code: Code, codes: MutableMap<Char, Code>) {
+    // Internal node
+    if (node.character == null) {
+        if (node.right != null) {
+            // Right branch → append 1
+            val newCodeValue = if (code.bits == 0) {
+                1U
+            } else {
+                (code.code shl 1) + 1U
+            }
+            getCodes(
+                node.right,
+                Code(code.bits + 1, newCodeValue),
+                codes
+            )
+        }
+        if (node.left != null) {
+            // Left branch → append 0
+            val newCodeValue = if (code.bits == 0) {
+                0U
+            } else {
+                code.code shl 1
+            }
+            getCodes(
+                node.left,
+                Code(code.bits + 1, newCodeValue),
+                codes
+            )
+        }
+    } else {
+        // Leaf node → store final code
+        codes[node.character] = code
+    }
+
+}
+
+// =================================================================
+//                              Data types
+// =================================================================
+/**
+ * Represents a node in the Huffman tree.
+ *
+ * A node can be:
+ * - A leaf node: contains a character and its probability.
+ * - An internal node: contains no character and has two children.
+ *
+ * @property character The character stored in this node (null for internal nodes).
+ * @property prob The probability of the character or the sum of probabilities of its subtree.
+ * @property left Left child (represents appending 0 in the code).
+ * @property right Right child (represents appending 1 in the code).
+ */
+@JvmRecord
+data class Node(
+    val character: Char?, val prob: Double, val left: Node?, val right: Node?
+) {
+    constructor(character: Char, freq: Double) : this(character, freq, null, null)
+    constructor(prob: Double, left: Node?, right: Node?) : this(null, prob, left, right)
+}
+
+class HuffmanBasedCompressor : FileSolver {
     override fun solve(inputFile: File, outputPath: String?): String {
-        TODO("Not yet implemented")
+        val message = inputFile.readText()
+        val probabilities = getProbabilities(message)
+        val dictionary = getHuffmanCodeDictionary(probabilities)
+        val payload = packPayload(dictionary, message)
+
+        val outputFile = writeCompressed(
+            getFilePathWithoutExtension(inputFile),
+            inputFile.extension,
+            dictionary,
+            payload,
+            CompressorExt.HUFFMAN
+        )
+        return getStats(
+            CompressorName.HUFFMAN,
+            dictionary,
+            probabilities,
+            payload.bitLen,
+            inputFile,
+            outputFile
+        )
     }
 }

@@ -10,16 +10,14 @@ class Decompressor: FileSolver {
      * And create a decompressed file with the same name but .txt extension
      */
     private fun writeFile(inputFile: File, message: String, extension: String): String {
-        var outPath = inputFile.absolutePath
-        if (inputFile.extension != "matt")
-            error("The file extension should be 'matt', but was '${inputFile.extension}' instead.")
 
-        outPath = if (inputFile.extension.isNotEmpty()) {
-            outPath.substringBeforeLast("." + inputFile.extension)
-        } else {
-            outPath
-        } + "_decompressed.$extension"
+        if (inputFile.extension !in CompressorExt.entries.map { it.compressorExt }.toSet())
+            error("The file extension should be 'sf' or 'hf, but was '${inputFile.extension}' instead.")
+
+        val outPath = "${getFilePathWithoutExtension(inputFile)}_decompressed.$extension"
         val outFile = File(outPath)
+        outFile.parentFile?.mkdirs()    //  Safe in case dir does not exist
+
         outFile.writeText(message)
         return "File decompressed successfully at: $outPath."
     }

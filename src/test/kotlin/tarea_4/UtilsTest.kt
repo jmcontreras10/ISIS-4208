@@ -1,6 +1,6 @@
 package tarea_4
 
-import isis4208.tarea_4.getFrequencies
+import isis4208.tarea_4.getProbabilities
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 
@@ -17,7 +17,7 @@ class UtilsTest {
             ' ' to 2.0/N
         )
 
-        val freq = getFrequencies(message)
+        val freq = getProbabilities(message)
         for (c in freq.keys) assertEquals(res[c], freq[c], "Should be the same frequency")
     }
 }
