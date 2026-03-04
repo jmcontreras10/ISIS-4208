@@ -145,7 +145,13 @@ fun writeCompressed(
 
     val dict = StringBuilder("The $compressor codes for the input message are:\n")
     dict.append("{\n")
-    for ((c, code) in codes.entries) dict.append("     $c -> ${code}, ${Integer.toBinaryString(code.code.toInt())}\n")
+    for ((c, code) in codes.entries) {
+        val binary = Integer
+            .toBinaryString(code.code.toInt())
+            .padStart(code.bits, '0')
+
+        dict.append("     $c -> ${code}, $binary\n")
+    }
     dict.append("}")
     return dict.toString()
 }
