@@ -1,5 +1,6 @@
 package tarea_4
 
+import isis4208.tarea_4.getProbabilities
 import isis4208.tarea_4.getShannonFanoCodeDictionary
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
@@ -17,7 +18,8 @@ class ShannonFanoBasedCompressorTest {
             'A' to 1U,
             ' ' to 5U
         )
-        val dict = getShannonFanoCodeDictionary(message)
+        val probabilities = getProbabilities(message)
+        val dict = getShannonFanoCodeDictionary(probabilities, message)
         for (c in dict.keys) assertEquals(ans[c], dict[c]!!.code, "Should be the same code")
     }
 }

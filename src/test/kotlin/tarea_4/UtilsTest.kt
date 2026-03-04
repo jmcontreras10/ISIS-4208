@@ -9,7 +9,7 @@ class UtilsTest {
     fun `should get the frequencies correctly`(){
         val message = "KEBAB AB BAK"
         val N = message.length
-        val res = mapOf<Char, Double>(
+        val res = mapOf(
             'K' to 2.0/N,
             'E' to 1.0/N,
             'B' to 4.0/N,
