@@ -5,6 +5,7 @@ import isis4208.tarea_1.Problem1SixDegreesSolver
 import isis4208.tarea_2.EdmondsKarpSolver
 import isis4208.tarea_2.PushRelabelFrontSolver
 import isis4208.tarea_4.Decompressor
+import isis4208.tarea_4.HuffmanBasedCompressor
 import isis4208.tarea_4.ShannonFanoBasedCompressor
 
 object Registry {
@@ -14,6 +15,7 @@ object Registry {
         ("Tarea_2" to "1") to EdmondsKarpSolver(),
         ("Tarea_2" to "2") to PushRelabelFrontSolver(),
         ("Tarea_4" to "1") to ShannonFanoBasedCompressor(),
+        ("Tarea_4" to "2") to HuffmanBasedCompressor(),
         ("Tarea_4" to "3") to Decompressor()
     )
 
