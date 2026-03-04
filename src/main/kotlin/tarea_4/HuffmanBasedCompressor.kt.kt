@@ -12,38 +12,35 @@ import java.util.*
  * Builds the Huffman code dictionary for a given message.
  *
  * This function:
- * 1. Computes the frequency of each character in the input message.
- * 2. Constructs a Huffman tree using a min-heap (priority queue).
- * 3. Traverses the tree to generate a prefix-free binary code for each character.
+ * 1. Constructs a Huffman tree using a min-heap (priority queue).
+ * 2. Traverses the tree to generate a prefix-free binary code for each character.
  *
  * The resulting dictionary maps each character to its corresponding
  * Huffman [Code], which contains:
  * - The number of bits used.
  * - The binary representation of the code.
  *
- * @param message The input text to compress.
+ * @param probabilities The probability of each character to be found in the original message.
  * @return A mutable map where each character is associated with its Huffman code.
  *
  */
-fun getHuffmanCodeDictionary(message: String): MutableMap<Char, Code> {
-    //  Getting frequencies
-    val frequencies = getFrequencies(message)
-    //  Getting priority queue of chars by frequency
-    val minHeap = PriorityQueue<Node>(
-        Comparator.comparing<Node, Double>(Node::freq)
+fun getHuffmanCodeDictionary(probabilities: Map<Char, Double>): MutableMap<Char, Code> {
+    //  Getting priority queue of chars by probability
+    val minHeap = PriorityQueue(
+        Comparator.comparing(Node::prob)
     )
-    frequencies.forEach { (ch, d) ->
-        minHeap.add(Node(ch, d))
+    probabilities.forEach { (ch, pr) ->
+        minHeap.add(Node(ch, pr))
     }
 
     // Build the Huffman tree
-    val n = frequencies.size
+    val n = probabilities.size
     for (i in 0 until n - 1) {
         val left = minHeap.poll()
         val right = minHeap.poll()
 
         val combinedFreq  =
-            (left?.freq ?: 0.0) + ((right?.freq ?: 0.0))
+            (left?.prob ?: 0.0) + ((right?.prob ?: 0.0))
 
         val parent = Node(combinedFreq, left, right)
         minHeap.add(parent)
@@ -120,31 +117,42 @@ fun getCodes(node: Node, code: Code, codes: MutableMap<Char, Code>) {
  * Represents a node in the Huffman tree.
  *
  * A node can be:
- * - A leaf node: contains a character and its frequency.
+ * - A leaf node: contains a character and its probability.
  * - An internal node: contains no character and has two children.
  *
  * @property character The character stored in this node (null for internal nodes).
- * @property freq The frequency of the character or the sum of frequencies of its subtree.
+ * @property prob The probability of the character or the sum of probabilities of its subtree.
  * @property left Left child (represents appending 0 in the code).
  * @property right Right child (represents appending 1 in the code).
  */
 @JvmRecord
 data class Node(
-    val character: Char?, val freq: Double, val left: Node?, val right: Node?
+    val character: Char?, val prob: Double, val left: Node?, val right: Node?
 ) {
     constructor(character: Char, freq: Double) : this(character, freq, null, null)
-    constructor(freq: Double, left: Node?, right: Node?) : this(null, freq, left, right)
+    constructor(prob: Double, left: Node?, right: Node?) : this(null, prob, left, right)
 }
 
 class HuffmanBasedCompressor : FileSolver {
     override fun solve(inputFile: File, outputPath: String?): String {
         val message = inputFile.readText()
-        val dictionary = getHuffmanCodeDictionary(message)
-        return writeCompressed(
-            inputFile,
+        val probabilities = getProbabilities(message)
+        val dictionary = getHuffmanCodeDictionary(probabilities)
+        val payload = packPayload(dictionary, message)
+
+        val outputFile = writeCompressed(
+            getFilePathWithoutExtension(inputFile),
+            inputFile.extension,
             dictionary,
-            message,
-            "Huffman"
+            payload
+        )
+        return getStats(
+            COMPRESSOR.HUFFMAN,
+            dictionary,
+            probabilities,
+            payload.bitLen,
+            inputFile,
+            outputFile
         )
     }
 }

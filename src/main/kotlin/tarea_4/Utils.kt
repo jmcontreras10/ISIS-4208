@@ -14,16 +14,17 @@ import kotlin.math.log2
 
 /**
  * This function process receives a String message as input, calculates each character frequency in the message
- * and returns a map of Char to frequency.
+ * and returns a map of Char to probability.
  */
-fun getFrequencies(message: String): Map<Char, Double> {
-    val frequencies = mutableMapOf<Char, Double>()
+fun getProbabilities(message: String): Map<Char, Double> {
+    val probabilities = mutableMapOf<Char, Double>()
     val N = message.length
 
-    //  Let's calculate the total
-    for (c in message) frequencies[c] = frequencies.getOrDefault(c, 0.0) + 1.0
-    for (c in frequencies.keys) frequencies[c] = frequencies[c]!!/N
-    return frequencies
+    //  Let's calculate the total frequencies
+    for (c in message) probabilities[c] = probabilities.getOrDefault(c, 0.0) + 1.0
+    //  Let's calculate each probability
+    for (c in probabilities.keys) probabilities[c] = probabilities[c]!!/N
+    return probabilities
 }
 
 // =================================================================
@@ -191,6 +192,9 @@ fun writeCompressed(
 fun readCompressed(
     file: File,
 ): Pair<String, String> {
+    require(file.exists()) { "Compressed file not found: ${file.absolutePath}" }
+    require(file.isFile) { "Path is not a file: ${file.absolutePath}" }
+
     //  Since reading is bit to bit, a trie is a better solution than a Map
     val root = BinaryTrieNode()
 
@@ -263,14 +267,14 @@ fun readCompressed(
  *  In:
  *  - compressor: compressor name
  *  - codesDict: to print the used dictionary
- *  - frequencies: to calculate expected number of bits of the payload, the entropy in the worst case
+ *  - probabilities: to calculate expected number of bits of the payload, the entropy in the worst case
  *  - payloadLen: to print it as stat
  *  - inputFile and outputFile: to calculate and print compression ratio
  */
 fun getStats(
     compressor: COMPRESSOR,
     codesDict: Map<Char, Code>,
-    frequencies: Map<Char, Double>,
+    probabilities: Map<Char, Double>,
     payloadLen: Int,
     inputFile: File,
     outputFile: File
@@ -298,7 +302,7 @@ fun getStats(
     //  Stats
     ans.append("#################### Stats for ${compressor.compressorName} codes calculation ####################\n\n")
     val expectedBits = codesDict.entries.sumOf { (char, code) ->
-        code.bits * frequencies[char]!!
+        code.bits * probabilities[char]!!
     }
     ans.append("Expected number of bits: (Σ μ ∈ Ψ |: Pr(μ)*(|B(μ)|)) = $expectedBits.\n")
 
