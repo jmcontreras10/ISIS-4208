@@ -118,7 +118,7 @@ Here you will find solutions for:
       KEBAB AB BAK
     ```
     * Output:
-      `.matt file: my custom compression file extension for compression`
+      `.sf or .hf files: custom file extensions for compression`
   - ### Huffman codes Compressor based (2)
     * Input:
       `Input path for any text extension file (.txt, .csv, .html...)`
@@ -126,10 +126,10 @@ Here you will find solutions for:
       KEBAB AB BAK
     ```
     * Output:
-      `.matt file: my custom compression file extension for compression`
-  - ### .matt decompressor (3)
+      `.sf or .hf files: custom file extensions for compression`
+  - ### .sf or .hf decompressor (3)
     * Input:
-      `.matt file path to decompress. This file should have been compressed using previous algorithms on this assignament.`
+      `.sf or .hf file path to decompress. This file should have been compressed using previous algorithms on this assignament.`
     * Output:
       `Since the compression algorithms in this assignament saves the extension, the result file will have the original extension`
     ```txt
