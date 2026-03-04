@@ -201,9 +201,6 @@ fun writeCompressed(
 fun readCompressed(
     file: File,
 ): Pair<String, String> {
-    require(file.exists()) { "Compressed file not found: ${file.absolutePath}" }
-    require(file.isFile) { "Path is not a file: ${file.absolutePath}" }
-
     //  Since reading is bit to bit, a trie is a better solution than a Map
     val root = BinaryTrieNode()
 
