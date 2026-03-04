@@ -1,9 +1,10 @@
 package isis4208.tarea_4
 
 import isis4208.FileSolver
+import isis4208.data_structures.BinaryTrieNode
 
 import java.io.File
-import java.util.*
+import java.util.PriorityQueue
 
 // =================================================================
 //          Algorithm: Huffman code base compressor
@@ -26,23 +27,23 @@ import java.util.*
  */
 fun getHuffmanCodeDictionary(probabilities: Map<Char, Double>): MutableMap<Char, Code> {
     //  Getting priority queue of chars by probability
-    val minHeap = PriorityQueue(
-        Comparator.comparing(Node::prob)
-    )
+    val minHeap = PriorityQueue(compareBy<BinaryTrieNode> { it.probability })
     probabilities.forEach { (ch, pr) ->
-        minHeap.add(Node(ch, pr))
+        minHeap.add(BinaryTrieNode(ch, pr))
     }
 
     // Build the Huffman tree
     val n = probabilities.size
     for (i in 0 until n - 1) {
-        val left = minHeap.poll()
-        val right = minHeap.poll()
+        val zero = minHeap.poll()
+        val one = minHeap.poll()
 
-        val combinedFreq  =
-            (left?.prob ?: 0.0) + ((right?.prob ?: 0.0))
+        val combinedProb  =
+            (zero?.probability ?: 0.0) + ((one?.probability ?: 0.0))
 
-        val parent = Node(combinedFreq, left, right)
+        val parent = BinaryTrieNode(null, combinedProb)
+        parent.zero = zero
+        parent.one = one
         minHeap.add(parent)
     }
 
@@ -74,10 +75,10 @@ fun getHuffmanCodeDictionary(probabilities: Map<Char, Double>): MutableMap<Char,
  * @param code Accumulated code from the root to this node.
  * @param codes Mutable map where final character codes are stored.
  */
-fun getCodes(node: Node, code: Code, codes: MutableMap<Char, Code>) {
+fun getCodes(node: BinaryTrieNode, code: Code, codes: MutableMap<Char, Code>) {
     // Internal node
-    if (node.character == null) {
-        if (node.right != null) {
+    if (node.char == null) {
+        if (node.zero != null) {
             // Right branch → append 1
             val newCodeValue = if (code.bits == 0) {
                 1U
@@ -85,12 +86,12 @@ fun getCodes(node: Node, code: Code, codes: MutableMap<Char, Code>) {
                 (code.code shl 1) + 1U
             }
             getCodes(
-                node.right,
+                node.zero!!,
                 Code(code.bits + 1, newCodeValue),
                 codes
             )
         }
-        if (node.left != null) {
+        if (node.one != null) {
             // Left branch → append 0
             val newCodeValue = if (code.bits == 0) {
                 0U
@@ -98,14 +99,14 @@ fun getCodes(node: Node, code: Code, codes: MutableMap<Char, Code>) {
                 code.code shl 1
             }
             getCodes(
-                node.left,
+                node.one!!,
                 Code(code.bits + 1, newCodeValue),
                 codes
             )
         }
     } else {
         // Leaf node → store final code
-        codes[node.character] = code
+        codes[node.char!!] = code
     }
 
 }
@@ -113,25 +114,6 @@ fun getCodes(node: Node, code: Code, codes: MutableMap<Char, Code>) {
 // =================================================================
 //                              Data types
 // =================================================================
-/**
- * Represents a node in the Huffman tree.
- *
- * A node can be:
- * - A leaf node: contains a character and its probability.
- * - An internal node: contains no character and has two children.
- *
- * @property character The character stored in this node (null for internal nodes).
- * @property prob The probability of the character or the sum of probabilities of its subtree.
- * @property left Left child (represents appending 0 in the code).
- * @property right Right child (represents appending 1 in the code).
- */
-@JvmRecord
-data class Node(
-    val character: Char?, val prob: Double, val left: Node?, val right: Node?
-) {
-    constructor(character: Char, freq: Double) : this(character, freq, null, null)
-    constructor(prob: Double, left: Node?, right: Node?) : this(null, prob, left, right)
-}
 
 class HuffmanBasedCompressor : FileSolver {
     override fun solve(inputFile: File, outputPath: String?): String {
