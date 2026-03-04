@@ -14,12 +14,10 @@ class Decompressor: FileSolver {
         if (inputFile.extension != "matt")
             error("The file extension should be 'matt', but was '${inputFile.extension}' instead.")
 
-        outPath = if (inputFile.extension.isNotEmpty()) {
-            outPath.substringBeforeLast("." + inputFile.extension)
-        } else {
-            outPath
-        } + "_decompressed.$extension"
+        outPath = "${getFilePathWithoutExtension(inputFile)}_decompressed.$extension"
         val outFile = File(outPath)
+        outFile.parentFile?.mkdirs()    //  Safe in case dir does not exist
+
         outFile.writeText(message)
         return "File decompressed successfully at: $outPath."
     }
