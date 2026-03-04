@@ -111,7 +111,15 @@ Here you will find solutions for:
 * ## Assignment 3: not present since was a Mathematical demonstration on graphs planarity
 
 * ## Assignment 4 (Tarea_4)
-  - ### Shannon-Fano Compressor based (1)
+  - ### Shannon-Fano codes Compressor based (1)
+    * Input:
+      `Input path for any text extension file (.txt, .csv, .html...)`
+    ```txt
+      KEBAB AB BAK
+    ```
+    * Output:
+      `.matt file: my custom compression file extension for compression`
+  - ### Huffman codes Compressor based (2)
     * Input:
       `Input path for any text extension file (.txt, .csv, .html...)`
     ```txt

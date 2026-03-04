@@ -144,10 +144,11 @@ class HuffmanBasedCompressor : FileSolver {
             getFilePathWithoutExtension(inputFile),
             inputFile.extension,
             dictionary,
-            payload
+            payload,
+            CompressorExt.HUFFMAN
         )
         return getStats(
-            COMPRESSOR.HUFFMAN,
+            CompressorName.HUFFMAN,
             dictionary,
             probabilities,
             payload.bitLen,

@@ -38,11 +38,19 @@ fun getProbabilities(message: String): Map<Char, Double> {
 data class Payload(val bytes: ByteArray, val bitLen: Int)
 
 /**
- * Compressors enum
+ * Compressors name enum
  */
-enum class COMPRESSOR(val compressorName: String) {
+enum class CompressorName(val compressorName: String) {
     SHANNON_FANO("Shannon-Fano"),
     HUFFMAN("Huffman")
+}
+
+/**
+ * Compressors extension enum
+ */
+enum class CompressorExt(val compressorExt: String) {
+    SHANNON_FANO("sf"),
+    HUFFMAN("hf")
 }
 
 // =================================================================
@@ -152,8 +160,9 @@ fun writeCompressed(
     extensionName: String,
     codesDict: Map<Char, Code>,
     payload: Payload,
+    compressor: CompressorExt
 ): File {
-    val outFile = File("$outPath.matt")
+    val outFile = File("$outPath.${compressor.compressorExt}")
     outFile.parentFile?.mkdirs()    //  Safe in case dir does not exist
 
     DataOutputStream(BufferedOutputStream(outFile.outputStream())).use { out ->
@@ -272,7 +281,7 @@ fun readCompressed(
  *  - inputFile and outputFile: to calculate and print compression ratio
  */
 fun getStats(
-    compressor: COMPRESSOR,
+    compressor: CompressorName,
     codesDict: Map<Char, Code>,
     probabilities: Map<Char, Double>,
     payloadLen: Int,

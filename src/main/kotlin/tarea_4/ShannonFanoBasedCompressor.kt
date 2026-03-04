@@ -69,10 +69,11 @@ class ShannonFanoBasedCompressor: FileSolver {
             getFilePathWithoutExtension(inputFile),
             inputFile.extension,
             dictionary,
-            payload
+            payload,
+            CompressorExt.SHANNON_FANO
         )
         return getStats(
-            COMPRESSOR.SHANNON_FANO,
+            CompressorName.SHANNON_FANO,
             dictionary,
             probabilities,
             payload.bitLen,
