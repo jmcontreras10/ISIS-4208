@@ -22,20 +22,24 @@ class SuffixArraySearch(text: String): SuffixSearch(text) {
      */
     private fun search(query: String): Set<Int> {
         val res = mutableSetOf<Int>()
+        if (query.isEmpty()) return res
         val N = query.length
 
         var l = 0
-        var r = text.length - 1
+        var r = text.length
         //  Find the first suffix matching the query
         while (l < r) {
-            val m = ((r - l)/2) + l   //  In the current already lexicographic sorted array, search the middle
-            val mi = suffixes[m]      //  Get the index that the middle is pointing at
-            val curr = text.slice(mi..<minOf(mi + N, text.length))
-            if (curr >= query) r = m
+            val m = ((r - l)/2) + l             //  In the current already lexicographic sorted array, search the middle
+            val mi = suffixes[m]                //  Get the index that the middle is pointing at
+            if (mi + N <=  text.length && text.slice(mi..<mi + N) >= query) r = m
             else l = m + 1
         }
         //  Iterate and save all matching suffixes. In this case r is the first matching suffix
-        while(r < suffixes.size && text.slice(suffixes[r]..<minOf(suffixes[r] + N, text.length)) == query) {
+        while(
+            r < suffixes.size &&
+            text.length > suffixes[r] + N &&
+            text.slice(suffixes[r]..<suffixes[r] + N) == query
+        ) {
             res.add(suffixes[r])
             r++
         }

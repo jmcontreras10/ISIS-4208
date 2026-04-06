@@ -109,5 +109,15 @@ class SuffixArraySearchTest {
 
             assertEquals(0, result!!.size)
         }
+
+        @Test
+        fun `should return empty, since empty query`() {
+            val text = "Esta es una banana de la Biologia. En la Biologia las Bananas son amarillas."
+            val query = ""
+            val suffixArray = SuffixArraySearch(text)
+            val result = suffixArray.search(setOf(query))[query]
+
+            assertEquals(0, result!!.size)
+        }
     }
 }
