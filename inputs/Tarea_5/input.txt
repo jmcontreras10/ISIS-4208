@@ -1,0 +1,2 @@
+inputs/Tarea_5/text.txt
+inputs/Tarea_5/queries.txt

@@ -37,7 +37,7 @@ class SuffixArraySearch(text: String): SuffixSearch(text) {
         //  Iterate and save all matching suffixes. In this case r is the first matching suffix
         while(
             r < suffixes.size &&
-            text.length > suffixes[r] + N &&
+            text.length >= suffixes[r] + N &&
             text.slice(suffixes[r]..<suffixes[r] + N) == query
         ) {
             res.add(suffixes[r])

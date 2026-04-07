@@ -136,6 +136,29 @@ Here you will find solutions for:
       KEBAB AB BAK
     ```
   
+* ## Assignment 5 (Tarea_5)
+  - ### Suffix Array Text Search (1)
+    * Input:
+      `Input path for a .txt file containing two lines: path to the text file and path to the queries file`
+    ```txt
+    path/to/text.txt
+    path/to/queries.txt
+    ```
+    Where `text.txt` is any plain text file (may span multiple lines) and `queries.txt` has one query per line:
+    ```txt
+    ana
+    na
+    Banana
+    ```
+    * Optional: output path for results file
+    * Output:
+      `For each query, one line with the query followed by tab-separated positions where it appears in the text`
+    ```txt
+    ana	1	3
+    na	2	4
+    Banana	0
+    ```
+
 ## Generative AI Disclaimer
 
 Generative AI was used under my supervision and correction only for the following cases in this project:
