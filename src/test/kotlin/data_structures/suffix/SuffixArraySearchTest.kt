@@ -41,7 +41,7 @@ class SuffixArraySearchTest {
             // pi(9), ppi(8), sippi(6), sissippi(3), ssippi(5), ssissippi(2)
             val expectedOrder = intArrayOf(10, 7, 4, 1, 0, 9, 8, 6, 3, 5, 2)
 
-            assertContentEquals(expectedOrder, suffixArray.suffixes.toIntArray())
+            assertContentEquals(expectedOrder, suffixArray.suffixes)
         }
 
         @Test
@@ -51,7 +51,7 @@ class SuffixArraySearchTest {
             // a(3), aa(2), aaa(1), aaaa(0)
             val expectedOrder = intArrayOf(3, 2, 1, 0)
 
-            assertContentEquals(expectedOrder, suffixArray.suffixes.toIntArray())
+            assertContentEquals(expectedOrder, suffixArray.suffixes)
         }
 
         @Test
@@ -59,7 +59,7 @@ class SuffixArraySearchTest {
             val text = "a"
             val suffixArray = SuffixArraySearch(text)
 
-            assertContentEquals(intArrayOf(0), suffixArray.suffixes.toIntArray())
+            assertContentEquals(intArrayOf(0), suffixArray.suffixes)
         }
     }
 
