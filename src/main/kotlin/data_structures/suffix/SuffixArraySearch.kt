@@ -2,19 +2,31 @@ package isis4208.data_structures.suffix
 
 class SuffixArraySearch(text: String): SuffixSearch(text) {
 
-    val suffixes = text.mapIndexed { index, _ -> index}.toTypedArray()
+    val suffixes: IntArray
 
+    /**
+     * Compares suffixes by walking the original text character by character,
+     * avoiding any String allocation during sort.
+     */
     class PositionComparator(private val text: String): Comparator<Int> {
         override fun compare(ai: Int, bi: Int): Int {
-            (ai >= 0 && bi >= 0 && ai < text.length && bi < text.length)
-            val a = text.slice(ai..<text.length)
-            val b = text.slice(bi..<text.length)
-            return a.compareTo(b)
+            var i = ai
+            var j = bi
+            while (i < text.length && j < text.length) {
+                val c = text[i] - text[j]
+                if (c != 0) return c
+                i++
+                j++
+            }
+            // shorter suffix (fewer remaining chars) comes first
+            return (text.length - i) - (text.length - j)
         }
     }
 
     init {
-        suffixes.sortWith(PositionComparator(text))
+        val boxed = Array(text.length) { it }
+        boxed.sortWith(PositionComparator(text))
+        suffixes = boxed.toIntArray()
     }
 
     /**
@@ -29,16 +41,16 @@ class SuffixArraySearch(text: String): SuffixSearch(text) {
         var r = text.length
         //  Find the first suffix matching the query
         while (l < r) {
-            val m = ((r - l)/2) + l             //  In the current already lexicographic sorted array, search the middle
-            val mi = suffixes[m]                //  Get the index that the middle is pointing at
-            if (mi + N <=  text.length && text.slice(mi..<mi + N) >= query) r = m
+            val m = ((r - l) / 2) + l           //  In the current already lexicographic sorted array, search the middle
+            val mi = suffixes[m]                 //  Get the index that the middle is pointing at
+            if (mi + N <= text.length && text.substring(mi, mi + N) >= query) r = m
             else l = m + 1
         }
         //  Iterate and save all matching suffixes. In this case r is the first matching suffix
-        while(
+        while (
             r < suffixes.size &&
             text.length >= suffixes[r] + N &&
-            text.slice(suffixes[r]..<suffixes[r] + N) == query
+            text.substring(suffixes[r], suffixes[r] + N) == query
         ) {
             res.add(suffixes[r])
             r++
@@ -48,7 +60,7 @@ class SuffixArraySearch(text: String): SuffixSearch(text) {
 
     override fun search(queries: Set<String>): Map<String, Set<Int>> {
         val res = mutableMapOf<String, Set<Int>>()
-        queries.forEach{ query -> res[query] = search(query)}
+        queries.forEach { query -> res[query] = search(query) }
         return res
     }
 }
