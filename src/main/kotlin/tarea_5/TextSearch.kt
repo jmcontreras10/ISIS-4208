@@ -35,7 +35,30 @@ enum class SearchTypes {
 
 class TextSearch: FileSolver {
     override fun solve(inputFile: File, outputPath: String?): String {
-        TODO("Not yet implemented")
-    }
+        val lines = inputFile.readLines()
+        require(lines.size >= 2) { "Input file must contain two lines: path to text file and path to queries file" }
 
+        val textFile = File(lines[0].trim())
+        val queriesFile = File(lines[1].trim())
+
+        val text = textFile.readText()
+        val queries = queriesFile.readLines().filter { it.isNotBlank() }.toSet()
+
+        val searcher = getSuffixSearch(text, SearchTypes.SUFFIX_ARRAY)
+        val results = searcher.search(queries)
+
+        val sb = StringBuilder()
+        for ((query, positions) in results) {
+            sb.append(query)
+            positions.sorted().forEach { pos -> sb.append('\t').append(pos) }
+            sb.append('\n')
+        }
+        val output = sb.toString()
+
+        if (outputPath != null) {
+            File(outputPath).writeText(output)
+        }
+
+        return output
+    }
 }
