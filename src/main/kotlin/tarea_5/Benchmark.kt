@@ -82,10 +82,13 @@ private fun generateText(size: Int): String {
 private fun generateQueries(text: String, target: Int): Set<String> {
     val queries = mutableSetOf<String>()
     val maxStart = text.length - 10
-    while (queries.size < target) {
+    val maxAttempts = target * 3
+    var attempts = 0
+    while (queries.size < target && attempts < maxAttempts) {
         val start = Random.nextInt(maxStart)
         val len   = Random.nextInt(4, 11)
         queries.add(text.substring(start, start + len))
+        attempts++
     }
     return queries
 }
