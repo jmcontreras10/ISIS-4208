@@ -159,6 +159,39 @@ Here you will find solutions for:
     Banana	0
     ```
 
+  - ### Performance Benchmark
+    Runs all 12 experiment combinations (3 text sizes × 4 query sizes) and writes results to `outputs/Tarea_5/benchmark_results.csv`.
+
+    ```bash
+    # Build first
+    gradlew.bat shadowJar           # Windows
+    ./gradlew shadowJar             # macOS/Linux
+
+    # Run benchmark
+    java -cp build/libs/isis4208.jar isis4208.tarea_5.BenchmarkKt
+    ```
+
+    #### Experiment Results
+
+    | Text size (chars) | Queries | Build (ms) | Search (ms) | Total (ms) |
+    |------------------:|--------:|-----------:|------------:|-----------:|
+    | 100,000           | 1,000   |            |             |            |
+    | 100,000           | 10,000  |            |             |            |
+    | 100,000           | 100,000 |            |             |            |
+    | 100,000           | 1,000,000 |          |             |            |
+    | 1,000,000         | 1,000   |            |             |            |
+    | 1,000,000         | 10,000  |            |             |            |
+    | 1,000,000         | 100,000 |            |             |            |
+    | 1,000,000         | 1,000,000 |          |             |            |
+    | 10,000,000        | 1,000   |            |             |            |
+    | 10,000,000        | 10,000  |            |             |            |
+    | 10,000,000        | 100,000 |            |             |            |
+    | 10,000,000        | 1,000,000 |          |             |            |
+
+    > Build time depends only on the text size (suffix array construction).
+    > Search time scales with query count × query length × log(text size).
+    > Full CSV exported to `outputs/Tarea_5/benchmark_results.csv` for Excel import.
+
 ## Generative AI Disclaimer
 
 Generative AI was used under my supervision and correction only for the following cases in this project:
